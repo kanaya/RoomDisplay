@@ -9,7 +9,7 @@
 
 #include "mbed.h"
 
-#define N_TEXTS (127+16)
+#define N_TEXTS 141
 
 char *texts[] = {
     " JUL-07-2005",
@@ -23,7 +23,7 @@ char *texts[] = {
     " AUG-26-2006", " TROPICAL >>", " GROOVERS   ",
     " OCT-22-2006", " PUMPKIN  >>", " RASTA      ",
     " DEC-29-2006", " 2006 FINAL ",
-    " JAN-27-2007", " SOUL SPIDER", " 007        ",
+    " JAN-27-2007", " SOUL     >>", " SPIDER 007 ",
     " APR-22-2007", " GREENBREAKS",
     " JUN-15-2007", " THE SECOND>", " ANIVERSARY ",
     " AUG-26-2007", " COSMICDISCO",
@@ -46,25 +46,25 @@ char *texts[] = {
     " MAR-04-2011",
     " JUN-22-2011", " FANFARE    ",
     "  0731  2005", "  1222  2013",
-    "  SENSE OF  ", "   GROOVE   ",
+    " SENSE OF   ", " GROOVE     ",
     " SOG SOG SOG",
-    " THE    ROOM",
-    "    *TODAY* ",
-    " SABI TECH>>", " RIDERS     ",
+    " THEROOM    ",
+    " *TODAY*    ",
+    " SABI     >>", " TECH RIDERS",
     " TSUYOSHI >>", " SAITO BLA>>", " CK EDITION ",
-    " *TAKEYA* >>", " SOG        ", " SOG >>>    ", " SOG >>> >>>",
-    " DANJOH   >>", " SOG        ", " SOG >>>    ", " SOG >>> >>>",
-    " KAJITSU  >>", " SOG/DISCO>>", " VIKING     ",
-    " 3S       >>", " SOG/UNIT >>", " 3S         ",
-    " ACCHI    >>", " SOG        ", " SOG >>>    ", " SOG >>> >>>",
-    " 428GRAFFI>>", " SOG        ", " SOG >>>    ", " SOG >>> >>>",
-    " TOMO     >>", " SOG        ", " SOG >>>    ", " SOG >>> >>>",
-    " MITCHY   >>", " SOG        ", " SOG >>>    ", " SOG >>> >>>",
-    " TAKE-C   >>", " SOG        ", " SOG >>>    ", " SOG >>> >>>",
-    " SHIGE    >>", " SOG        ", " SOG >>>    ", " SOG >>> >>>",
+    " *TAKEYA* >>", "_SOG        ", "_SOG >>>    ", " SOG >>> >>>",
+    " DANJOH   >>", "_SOG        ", "_SOG >>>    ", " SOG >>> >>>",
+    " KAJITSU  >>", " SOG/     >>", " DISCOVIKING",
+    " 3S       >>", " SOG/UNIT 3S",
+    " ACCHI    >>", "_SOG        ", "_SOG >>>    ", " SOG >>> >>>",
+    " 428GRAFFI>>", "_SOG        ", "_SOG >>>    ", " SOG >>> >>>",
+    " TOMO     >>", "_SOG        ", "_SOG >>>    ", " SOG >>> >>>",
+    " MITCHY   >>", "_SOG        ", "_SOG >>>    ", " SOG >>> >>>",
+    " TAKE-C   >>", "_SOG        ", "_SOG >>>    ", " SOG >>> >>>",
+    " SHIGE    >>", "_SOG        ", "_SOG >>>    ", " SOG >>> >>>",
     " AI FOUGY >>", " PHUTURISTIC", " BLUES      ",
     " DJ FLIGHT  ",
-    " DJ ADDICT>>", " ION        ",
+    " DJADDICTION",
     " DJ SUV     ",
     " NATURAL MC ",
     " BAGGS    >>", " BREAKBEAT>>", " SCIENCE    ",
@@ -95,7 +95,9 @@ char *texts[] = {
 
 #define N_LEDS 12   // cascade No (1 - 20)
 #define MAX_BRIGHTNESS 4096
-#define WAIT 1
+#define WAIT  2
+
+DigitalOut led1(LED1);
 
 // TLC5940 control pin setting
 SPI spi(p5, p6, p7);    //SIN (p6), SCLK,GSCLK(p7)
@@ -245,18 +247,25 @@ void showString16(const char *letters) {
 }
 
 void showString12(const char *letters) {
-    // length of letters must be 16
+    // length of letters must be 12
     int grayData[N_LEDS * 16];
+    int zero;
+    if (letters[0] == '_') {
+        zero = MAX_BRIGHTNESS / 2;
+    }
+    else {
+        zero = 0;
+    }
     clear(grayData);
     for (int i = 0; i < 12; ++i) {
         putLetter((int *)grayData, ascii2letter[letters[i]], i);
     }
-    for (int g_up = 0; g_up < MAX_BRIGHTNESS; ++g_up) {
+    for (int g_up = zero; g_up < MAX_BRIGHTNESS; ++g_up) {
         for (int dummy = 0; dummy < WAIT; ++dummy) {
             tlc5940DataSend((int *)grayData, g_up);
         }
     }
-    for (int g_down = MAX_BRIGHTNESS - 1; g_down >= 0; --g_down) {
+    for (int g_down = MAX_BRIGHTNESS - 1; g_down >= zero; --g_down) {
         for (int dummy = 0; dummy < WAIT; ++dummy) {
             tlc5940DataSend((int *)grayData, g_down);
         }
